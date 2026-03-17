@@ -1,0 +1,122 @@
+Task 1.1 — Ana sayfa iskeletini tasarlama
+
+Amaç:
+Ana sayfanın kaba düzenini kurmak.
+
+Bu taskta:
+	•	başlık
+	•	açıklama metni
+	•	ana container
+	•	form alanlarının yerleşimi
+
+olacak.
+
+Çıktı
+
+Boş ama düzenli bir layout.
+
+⸻
+
+Task 1.2 — PDF upload alanını ekleme
+
+Amaç:
+Kullanıcının CV PDF’ini seçebileceği input alanını eklemek.
+
+Bu taskta:
+	•	input type="file" kullanacağız
+	•	sadece .pdf kabul ettireceğiz
+	•	label ile daha okunur hale getireceğiz
+
+Çıktı
+
+Kullanıcı PDF dosyası seçebiliyor olacak.
+
+⸻
+
+Task 1.3 — Job Description textarea ekleme
+
+Amaç:
+Kullanıcının iş ilanı metnini gireceği alanı oluşturmak.
+
+Bu taskta:
+	•	büyük bir textarea
+	•	placeholder
+	•	label
+	•	temel stil
+
+olacak.
+
+Çıktı
+
+Kullanıcı JD metni yazabiliyor olacak.
+
+⸻
+
+Task 1.4 — Analyze butonunu ekleme
+
+Amaç:
+Formun aksiyon butonunu koymak.
+
+Bu taskta:
+	•	buton tasarımı
+	•	konumu
+	•	şimdilik click olduğunda boş davranış veya console log
+
+olabilir.
+
+Çıktı
+
+Ekranda net bir CTA olacak:
+Analyze Resume
+
+⸻
+
+Task 1.5 — React state kurma
+
+Amaç:
+Girilen verileri state’te tutmak.
+
+Bu taskta:
+	•	seçilen PDF dosyası
+	•	textarea içeriği
+	•	loading state (istersek başlangıçtan)
+
+oluşturacağız.
+
+Çıktı
+
+UI artık statik değil, kontrollü olacak.
+
+⸻
+
+Task 1.6 — Form validation’ın temelini atma
+
+Amaç:
+Henüz backend yokken bile boş form gönderimini engellemek.
+
+Bu taskta:
+	•	PDF seçilmemişse uyarı
+	•	JD boşsa uyarı
+	•	butona basıldığında basic kontrol
+
+olabilir.
+
+Çıktı
+
+Form biraz daha gerçek ürün gibi davranır.
+
+⸻
+
+Task 1.7 — UI cleanup
+
+Amaç:
+Ekranı düzenli ve okunur yapmak.
+
+Bu taskta:
+	•	spacing
+	•	başlık hiyerarşisi
+	•	kart görünümü
+	•	responsive genişlik
+	•	input stilleri
+
+iyileştirilecek.
