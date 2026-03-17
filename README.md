@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ATS Resume Analyzer
 
-## Getting Started
+A full-stack ATS-style resume analysis system built with Next.js and TypeScript.
 
-First, run the development server:
+This project analyzes a PDF resume against a job description and provides:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Skill matching analysis
+- Missing skills detection
+- ATS-style scoring breakdown
+- AI-powered improvement suggestions (planned)
+
+---
+
+## 🎯 Project Goal
+
+The goal of this project is to simulate how Applicant Tracking Systems (ATS) evaluate resumes.
+
+Users will be able to:
+
+1. Upload a resume in PDF format
+2. Paste a job description
+3. Receive:
+   - Matched skills
+   - Missing skills
+   - Score breakdown
+   - Optimization feedback
+
+This project is designed as a portfolio-level engineering project demonstrating:
+
+- Full-stack development
+- Text processing
+- Rule-based scoring systems
+- AI integration
+- Clean project architecture
+
+---
+
+## 🛠 Tech Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- OpenAI API (planned)
+- PDF parsing library (planned)
+
+---
+
+## 🧠 Architecture Overview (Planned)
+
+The system will include:
+
+1. PDF Parsing Layer  
+2. Text Normalization Layer  
+3. Skill Extraction Engine  
+4. Match Engine  
+5. ATS Scoring System  
+6. AI Feedback Layer  
+
+Each phase of development is tracked inside:
+
+```
+docs/project-phases.txt
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Getting Started
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run the development server:
 
-## Learn More
+```
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📂 Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+ats-resume-analyzer/
+├── docs/
+├── public/
+├── src/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   ├── types/
+│   └── data/
+├── README.md
+├── package.json
+└── tsconfig.json
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📌 Status
+
+Phase 0 — Project setup completed  
+Next step: Build basic resume upload and analysis UI
+
+---
+
+## 👨‍💻 Author
+
+Yiğit Kaan Bilir
