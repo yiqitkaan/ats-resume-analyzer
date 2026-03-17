@@ -1,0 +1,75 @@
+ATS Resume Analyzer - Project Phases
+
+Phase 0 - Project Setup
+- Initialize Next.js project with TypeScript
+- Verify local development server runs
+- Set up Git and GitHub repository
+- Create base folder structure
+- Add README
+- Add environment file
+- Add project phases tracking file
+
+Phase 1 - Basic UI
+- Create homepage layout
+- Add PDF upload input
+- Add job description textarea
+- Add Analyze button
+- Add basic form state
+
+Phase 2 - PDF Parsing
+- Upload PDF to backend
+- Extract text from PDF
+- Clean and normalize extracted text
+
+Phase 3 - Text Preprocessing
+- Normalize resume text
+- Normalize job description text
+- Prepare texts for analysis
+
+Phase 4 - Skill Dictionary
+- Create categorized skill list
+- Add normalization/synonym mapping
+
+Phase 5 - Skill Extraction
+- Extract skills from resume
+- Extract skills from job description
+
+Phase 6 - Match Engine
+- Find matched skills
+- Find missing skills
+- Calculate coverage
+
+Phase 7 - ATS Scoring
+- Skill match score
+- Keyword coverage score
+- Experience alignment score
+- Structure score
+- Achievement score
+- Overall score
+
+Phase 8 - AI Feedback
+- Generate strengths
+- Generate weaknesses
+- Generate ATS risks
+- Generate suggestions
+
+Phase 9 - Analyze API
+- Build analysis route
+- Return structured JSON response
+
+Phase 10 - Results Dashboard
+- Show overall score
+- Show score breakdown
+- Show matched and missing skills
+- Show AI feedback
+
+Phase 11 - Error Handling and Refactor
+- Validate inputs
+- Handle invalid PDF
+- Improve code organization
+
+Phase 12 - Final Presentation
+- Improve README
+- Add screenshots
+- Prepare GitHub project description
+- Prepare CV-friendly explanation
