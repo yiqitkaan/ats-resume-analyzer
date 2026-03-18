@@ -1,0 +1,123 @@
+Phase 2 — PDF Parsing Pipeline
+
+Overview  
+Phase 2 focuses on building a reliable backend pipeline that receives a resume PDF, extracts its raw text content, and prepares it for further processing. The goal is to establish a stable extraction layer before introducing cleaning, scoring, or AI logic.
+
+---
+
+Task 2.1 — Parse Route Skeleton
+
+Goal:  
+Create a backend API endpoint to receive resume files.
+
+Scope:
+- Create `src/app/api/parse-resume/route.ts`
+- Implement a POST handler
+- Accept incoming requests
+- Return a temporary JSON response
+
+Output:
+A working backend route that accepts requests from the frontend.
+
+---
+
+Task 2.2 — Connect Frontend to Backend
+
+Goal:  
+Send the selected PDF file from the frontend to the backend route.
+
+Scope:
+- Update `handleSubmit`
+- Send file using `FormData`
+- Implement loading state
+- Log or temporarily store backend response
+
+Output:
+The PDF is successfully transmitted from frontend to backend.
+
+---
+
+Task 2.3 — Implement PDF Text Extraction
+
+Goal:  
+Extract raw text from the uploaded PDF file on the backend.
+
+Scope:
+- Install and integrate a PDF parsing library
+- Convert file → ArrayBuffer → Node Buffer
+- Extract text using a dedicated helper (`src/lib/extractPdfText.ts`)
+- Return structured JSON response:
+  {
+    success: true,
+    rawText: "..."
+  }
+
+Output:
+Raw textual content is successfully extracted from the PDF.
+
+---
+
+Debug & Stabilization Notes (Task 2.3)
+
+Issue Encountered:
+During integration, the PDF parsing pipeline failed with runtime and worker-related errors (500 Internal Server Error). The issue was not caused by request handling but by the parsing layer environment configuration.
+
+Root Cause:
+- Worker initialization conflicts in Next.js environment
+- Incorrect import usage during early attempts
+- Runtime mismatch issues
+
+Resolution Steps:
+- Added detailed debug logging to isolate the failure point
+- Identified that the error originated in the parsing helper
+- Ensured the route runs in Node.js runtime:
+  `export const runtime = "nodejs";`
+- Removed incorrect default imports
+- Removed unnecessary worker hacks (`getData`, experimental imports)
+- Reverted to minimal, stable `PDFParse` usage
+- Cleaned up all temporary debug code
+
+Final Architecture:
+- `route.ts` handles request validation and response formatting
+- `extractPdfText.ts` handles PDF parsing logic only
+- No parsing logic exists inside the route
+- Minimal and stable implementation maintained
+
+Outcome:
+A clean, stable server-side PDF extraction layer ready for further processing.
+
+---
+
+Task 2.4 — Text Cleaning / Normalization
+
+Goal:  
+Transform raw extracted text into a cleaner, analysis-ready format.
+
+Scope:
+- Remove excessive whitespace
+- Normalize line breaks
+- Remove page markers (e.g., "-- 1 of 2 --")
+- Basic text normalization
+
+Output:
+Cleaned resume text suitable for skill extraction and scoring.
+
+---
+
+Task 2.5 — Frontend Parse Preview
+
+Goal:  
+Display extracted resume text in the UI for validation and debugging.
+
+Scope:
+- Show extracted text in a preview section
+- Display parsing errors clearly
+- Add temporary debug UI component
+
+Output:
+Frontend displays “Extracted Resume Text” preview for validation.
+
+---
+
+Phase 2 Status:
+PDF parsing layer stabilized and ready for cleaning and analysis layers.

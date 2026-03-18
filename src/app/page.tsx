@@ -12,6 +12,11 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState("");
   const [jobDescription, setJobDescription] = useState("");
+  const [cleanedResumeText, setCleanedResumeText] = useState<string | null>(
+    null,
+  );
+  const [isParsing, setIsParsing] = useState(false);
+  const [parseError, setParseError] = useState("");
   const [touched, setTouched] = useState({
     pdf: false,
     jobDescription: false,
@@ -37,6 +42,8 @@ export default function Home() {
     const file = event.target.files?.[0];
     setSelectedFile(file ?? null);
     setSelectedFileName(file ? file.name : "");
+    setCleanedResumeText(null);
+    setParseError("");
     setTouched((previous) => ({ ...previous, pdf: true }));
     setErrors(getValidationErrors(file ?? null, jobDescription));
   };
@@ -44,6 +51,8 @@ export default function Home() {
   const handleClearSelectedFile = () => {
     setSelectedFileName("");
     setSelectedFile(null);
+    setCleanedResumeText(null);
+    setParseError("");
     setTouched((previous) => ({ ...previous, pdf: true }));
     setErrors(getValidationErrors(null, jobDescription));
 
@@ -52,7 +61,7 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setTouched({ pdf: true, jobDescription: true });
 
@@ -63,7 +72,48 @@ export default function Home() {
       return;
     }
 
-    console.log("Resume analysis submitted");
+    if (!selectedFile) {
+      return;
+    }
+
+    setParseError("");
+    setCleanedResumeText(null);
+    setIsParsing(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("resume", selectedFile);
+
+      const response = await fetch("/api/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      const errorMessage =
+        typeof data?.error === "string"
+          ? data.error
+          : "Failed to connect to parse route.";
+
+      if (!response.ok || data?.success !== true) {
+        throw new Error(errorMessage);
+      }
+
+      if (typeof data.cleanedText === "string" && data.cleanedText.trim()) {
+        setCleanedResumeText(data.cleanedText);
+      } else {
+        setCleanedResumeText(null);
+      }
+    } catch (error: unknown) {
+      setCleanedResumeText(null);
+      setParseError(
+        error instanceof Error
+          ? error.message
+          : "Failed to connect to parse route.",
+      );
+    } finally {
+      setIsParsing(false);
+    }
   };
 
   return (
@@ -171,6 +221,7 @@ export default function Home() {
                 onChange={(event) => {
                   const nextJobDescription = event.target.value;
                   setJobDescription(nextJobDescription);
+                  setParseError("");
                   setTouched((previous) => ({
                     ...previous,
                     jobDescription: true,
@@ -196,11 +247,30 @@ export default function Home() {
 
             <button
               type="submit"
-              disabled={!isFormValid}
+              disabled={!isFormValid || isParsing}
               className="mt-7 w-full rounded-xl border border-sky-200 bg-sky-200 px-5 py-3 text-base font-semibold text-sky-950 shadow-[0_10px_30px_-14px_rgba(125,211,252,0.95)] transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-sky-200"
             >
-              Analyze Resume
+              {isParsing ? "Parsing Resume..." : "Analyze Resume"}
             </button>
+
+            {cleanedResumeText ? (
+              <div className="mt-6">
+                <h3 className="text-base font-semibold text-slate-100">
+                  Extracted Resume Preview
+                </h3>
+                <p className="mt-1 text-sm text-slate-400">
+                  This is the cleaned text extracted from your uploaded resume.
+                </p>
+
+                <div className="mt-3 h-72 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-950/70 p-4 text-sm leading-6 text-slate-200">
+                  {cleanedResumeText}
+                </div>
+              </div>
+            ) : null}
+
+            {parseError ? (
+              <p className="mt-3 text-sm text-red-300">{parseError}</p>
+            ) : null}
           </form>
         </section>
       </div>
