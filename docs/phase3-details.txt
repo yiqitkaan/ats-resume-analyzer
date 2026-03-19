@@ -1,0 +1,103 @@
+Task 3.1 — Resume Text Refinement
+
+Goal:
+Improve cleaned resume text for analysis readiness.
+
+Scope:
+- Merge broken sentence line wraps caused by PDF parsing
+- Preserve bullet points and headings
+- Ensure consistent spacing
+- Avoid aggressive transformation (no lowercasing entire text)
+
+Important:
+- Keep structure-preserving approach
+- Do not remove semantic meaning
+- Do not perform skill extraction yet
+
+Output:
+Refined resume text ready for tokenization and section detection.
+
+------------------------------------------------------------
+
+Task 3.2 — Job Description Normalization
+
+Goal:
+Apply a similar normalization pipeline to the job description input.
+
+Scope:
+- Trim whitespace
+- Normalize spacing
+- Normalize line breaks
+- Remove excessive blank lines
+- Preserve structure
+
+Important:
+- Keep JD readable
+- Do not modify user intent
+- Do not perform matching yet
+
+Output:
+Cleaned and standardized job description text.
+
+------------------------------------------------------------
+
+Task 3.3 — Tokenization Preparation
+
+Goal:
+Prepare resume and JD texts for skill matching logic.
+
+Scope:
+- Create utility function to tokenize text into words/phrases
+- Preserve multi-word skills (e.g., "React Native", "Selenium WebDriver")
+- Normalize comparison-ready format (case-insensitive comparison, but do not mutate original text)
+- Remove trivial noise characters for matching layer
+
+Important:
+- Do not implement matching yet
+- Do not score yet
+- This is only preparation
+
+Output:
+Token-ready resume and job description data.
+
+------------------------------------------------------------
+
+Task 3.4 — Comparison-Ready Data Model
+
+Goal:
+Define a simple structure to hold preprocessed data.
+
+Example structure:
+
+{
+  originalText: string,
+  refinedText: string,
+  tokens: string[]
+}
+
+Scope:
+- Create types inside src/types/
+- Keep structure simple
+- Avoid premature abstraction
+
+Output:
+Standardized preprocessing output shape for both resume and JD.
+
+------------------------------------------------------------
+
+Phase 3 Deliverable
+
+At the end of Phase 3:
+
+- Resume text is analysis-ready
+- Job description text is analysis-ready
+- Both are normalized consistently
+- Both are tokenizable
+- Structure is preserved
+- No scoring implemented yet
+
+Phase 4 will introduce:
+- Skill dictionary
+- Match engine
+- Missing skill detection
+- Score calculation

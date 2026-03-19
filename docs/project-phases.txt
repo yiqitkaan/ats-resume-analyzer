@@ -21,10 +21,12 @@ Phase 2 - PDF Parsing
 - Extract text from PDF
 - Clean and normalize extracted text
 
-Phase 3 - Text Preprocessing
-- Normalize resume text
-- Normalize job description text
-- Prepare texts for analysis
+Phase 3 — Analysis-Oriented Preprocessing
+	•	Refine cleaned resume text for ATS analysis
+	•	Preprocess and normalize job description text
+	•	Merge broken PDF line wraps where appropriate
+	•	Preserve or infer useful structure (sections, bullets, headings)
+	•	Prepare resume and JD texts for skill extraction and matching
 
 Phase 4 - Skill Dictionary
 - Create categorized skill list

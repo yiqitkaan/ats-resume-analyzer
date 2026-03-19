@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { extractPdfText } from "../../../lib/extractPdfText";
 import { cleanResumeText } from "../../../lib/cleanResumeText";
+import { refineResumeText } from "../../../lib/refineResumeText";
 
 export const runtime = "nodejs";
 
@@ -23,11 +24,13 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(arrayBuffer);
     const rawText = await extractPdfText(buffer);
     const cleanedText = cleanResumeText(rawText);
+    const refinedText = refineResumeText(cleanedText);
 
     return NextResponse.json({
       success: true,
       rawText,
       cleanedText,
+      refinedText,
     });
   } catch (error: unknown) {
     const message =

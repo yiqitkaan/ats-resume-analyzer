@@ -1,0 +1,35 @@
+Junior Software Test Automation Engineer
+
+We are looking for a motivated Junior QA Engineer to join our growing team.
+
+Responsibilities:
+
+- Design, develop and maintain automated test scripts using Selenium WebDriver
+- Perform API testing and validate RESTful services
+- Execute manual test cases when necessary
+- Collaborate closely with developers during the SDLC
+- Participate in regression testing activities
+
+Required Skills:
+
+Selenium WebDriver
+Java
+TestNG
+API Testing
+REST
+SDLC
+Bug tracking systems
+
+Nice to Have:
+
+Experience with React or React Native
+Knowledge of CI/CD pipelines
+Understanding of Agile methodologies
+Basic SQL knowledge
+
+Qualifications:
+
+Bachelor’s degree in Computer Engineering or related field
+Strong analytical thinking skills
+Good communication skills
+Ability to work in a team environment

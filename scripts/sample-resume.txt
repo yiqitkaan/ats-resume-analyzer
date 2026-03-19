@@ -1,0 +1,16 @@
+JOHN DOE
+SOFTWARE TEST ENGINEER
+
+WORK EXPERIENCE
+QA Intern
+ABC Tech
+I improved test case quality through hands-on software
+testing activities.
+
+- Built manual test scenarios for web forms
+- Reported bugs with clear reproduction steps
+
+EDUCATION AND TRAINING
+B.Sc. Computer Engineering
+Example University
+Sep 2021 - Jun 2025

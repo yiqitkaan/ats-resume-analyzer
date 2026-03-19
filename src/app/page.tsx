@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { normalizeJobDescription } from "../lib/normalizeJobDescription";
 
 type FormErrors = {
   pdf: string;
@@ -12,7 +13,8 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState("");
   const [jobDescription, setJobDescription] = useState("");
-  const [cleanedResumeText, setCleanedResumeText] = useState<string | null>(
+  const [, setNormalizedJobDescription] = useState<string | null>(null);
+  const [refinedResumeText, setRefinedResumeText] = useState<string | null>(
     null,
   );
   const [isParsing, setIsParsing] = useState(false);
@@ -42,7 +44,7 @@ export default function Home() {
     const file = event.target.files?.[0];
     setSelectedFile(file ?? null);
     setSelectedFileName(file ? file.name : "");
-    setCleanedResumeText(null);
+    setRefinedResumeText(null);
     setParseError("");
     setTouched((previous) => ({ ...previous, pdf: true }));
     setErrors(getValidationErrors(file ?? null, jobDescription));
@@ -51,7 +53,7 @@ export default function Home() {
   const handleClearSelectedFile = () => {
     setSelectedFileName("");
     setSelectedFile(null);
-    setCleanedResumeText(null);
+    setRefinedResumeText(null);
     setParseError("");
     setTouched((previous) => ({ ...previous, pdf: true }));
     setErrors(getValidationErrors(null, jobDescription));
@@ -76,8 +78,11 @@ export default function Home() {
       return;
     }
 
+    const nextNormalizedJobDescription = normalizeJobDescription(jobDescription);
+    setNormalizedJobDescription(nextNormalizedJobDescription);
+
     setParseError("");
-    setCleanedResumeText(null);
+    setRefinedResumeText(null);
     setIsParsing(true);
 
     try {
@@ -99,13 +104,13 @@ export default function Home() {
         throw new Error(errorMessage);
       }
 
-      if (typeof data.cleanedText === "string" && data.cleanedText.trim()) {
-        setCleanedResumeText(data.cleanedText);
+      if (typeof data.refinedText === "string" && data.refinedText.trim()) {
+        setRefinedResumeText(data.refinedText);
       } else {
-        setCleanedResumeText(null);
+        setRefinedResumeText(null);
       }
     } catch (error: unknown) {
-      setCleanedResumeText(null);
+      setRefinedResumeText(null);
       setParseError(
         error instanceof Error
           ? error.message
@@ -253,17 +258,17 @@ export default function Home() {
               {isParsing ? "Parsing Resume..." : "Analyze Resume"}
             </button>
 
-            {cleanedResumeText ? (
+            {refinedResumeText ? (
               <div className="mt-6">
                 <h3 className="text-base font-semibold text-slate-100">
                   Extracted Resume Preview
                 </h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  This is the cleaned text extracted from your uploaded resume.
+                  This is the refined text extracted from your uploaded resume.
                 </p>
 
                 <div className="mt-3 h-72 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-950/70 p-4 text-sm leading-6 text-slate-200">
-                  {cleanedResumeText}
+                  {refinedResumeText}
                 </div>
               </div>
             ) : null}
