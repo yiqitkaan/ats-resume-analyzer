@@ -7,71 +7,74 @@ Phase 0 - Project Setup
 - Create base folder structure
 - Add README
 - Add environment file
-- Add project phases tracking file
+- Add project phase tracking files
 
-Phase 1 - Basic UI
+Phase 1 - Upload Form and Core UI
 - Create homepage layout
 - Add PDF upload input
 - Add job description textarea
 - Add Analyze button
-- Add basic form state
+- Add controlled form state
+- Add client-side validation
+- Add file reset behavior
 
-Phase 2 - PDF Parsing
+Phase 2 - PDF Parsing and Resume Preview
 - Upload PDF to backend
 - Extract text from PDF
-- Clean and normalize extracted text
+- Clean and normalize extracted resume text
+- Show extracted / cleaned resume preview in UI
+- Stabilize parsing runtime and worker-related issues
 
-Phase 3 — Analysis-Oriented Preprocessing
-	•	Refine cleaned resume text for ATS analysis
-	•	Preprocess and normalize job description text
-	•	Merge broken PDF line wraps where appropriate
-	•	Preserve or infer useful structure (sections, bullets, headings)
-	•	Prepare resume and JD texts for skill extraction and matching
+Phase 3 - Analysis-Oriented Preprocessing
+- Refine cleaned resume text for ATS analysis
+- Normalize job description text
+- Prepare resume and JD text for comparison
+- Tokenize text into comparison-ready tokens and phrases
+- Build shared preprocessing data model
 
-Phase 4 - Skill Dictionary
-- Create categorized skill list
-- Add normalization/synonym mapping
-
-Phase 5 - Skill Extraction
+Phase 4 - Rule-Based ATS Analysis Engine
+- Create structured skill dictionary
+- Add synonym support and parent-child skill relationships
 - Extract skills from resume
 - Extract skills from job description
+- Match skills between resume and job description
+- Refine overlapping generic/specific skill results
+- Calculate basic ATS score
+- Integrate backend analysis route
+- Show ATS score and matched/missing/additional skills in UI
 
-Phase 6 - Match Engine
-- Find matched skills
-- Find missing skills
-- Calculate coverage
+Phase 5 - Score Breakdown Expansion
+- Add keyword coverage score
+- Add experience alignment score
+- Add structure score
+- Add achievement score
+- Build weighted overall score logic
+- Improve score explanation in UI
 
-Phase 7 - ATS Scoring
-- Skill match score
-- Keyword coverage score
-- Experience alignment score
-- Structure score
-- Achievement score
-- Overall score
-
-Phase 8 - AI Feedback
+Phase 6 - AI Feedback
 - Generate strengths
 - Generate weaknesses
 - Generate ATS risks
-- Generate suggestions
+- Generate rewrite suggestions
+- Add AI-assisted feedback section to results UI
 
-Phase 9 - Analyze API
-- Build analysis route
-- Return structured JSON response
+Phase 7 - Results Dashboard Refinement
+- Show full score breakdown
+- Improve result card layouts
+- Add better empty states and loading states
+- Improve responsiveness and UX polish
+- Add export/copy-ready result sections if needed
 
-Phase 10 - Results Dashboard
-- Show overall score
-- Show score breakdown
-- Show matched and missing skills
-- Show AI feedback
+Phase 8 - Error Handling and Refactor
+- Validate edge cases more thoroughly
+- Handle invalid PDF and extraction failures more gracefully
+- Reduce repeated logic
+- Improve project structure and naming consistency
+- Add helper-level and pipeline-level cleanup
 
-Phase 11 - Error Handling and Refactor
-- Validate inputs
-- Handle invalid PDF
-- Improve code organization
-
-Phase 12 - Final Presentation
+Phase 9 - Final Presentation
 - Improve README
 - Add screenshots
 - Prepare GitHub project description
 - Prepare CV-friendly explanation
+- Final polish for portfolio presentation

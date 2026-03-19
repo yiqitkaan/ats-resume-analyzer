@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { normalizeJobDescription } from "../lib/normalizeJobDescription";
+import type { ExtractedSkill } from "../lib/extractSkillsFromText";
 
 type FormErrors = {
   pdf: string;
@@ -14,9 +15,13 @@ export default function Home() {
   const [selectedFileName, setSelectedFileName] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [, setNormalizedJobDescription] = useState<string | null>(null);
-  const [refinedResumeText, setRefinedResumeText] = useState<string | null>(
-    null,
-  );
+  const [analysisResult, setAnalysisResult] = useState<{
+    score: number;
+    matchedSkills: ExtractedSkill[];
+    missingSkills: ExtractedSkill[];
+    extraSkills: ExtractedSkill[];
+  } | null>(null);
+  const [animatedScore, setAnimatedScore] = useState(0);
   const [isParsing, setIsParsing] = useState(false);
   const [parseError, setParseError] = useState("");
   const [touched, setTouched] = useState({
@@ -27,6 +32,35 @@ export default function Home() {
     pdf: "",
     jobDescription: "",
   });
+
+  useEffect(() => {
+    if (!analysisResult) {
+      setAnimatedScore(0);
+      return;
+    }
+
+    const targetScore = analysisResult.score;
+    const duration = 800;
+    const startTime = performance.now();
+    let frameId = 0;
+
+    const animate = (currentTime: number) => {
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      setAnimatedScore(targetScore * progress);
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(animate);
+      }
+    };
+
+    frameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, [analysisResult]);
+
+  const displayedScore = Math.max(0, Math.min(100, Math.round(animatedScore)));
 
   const getValidationErrors = (
     file: File | null,
@@ -44,7 +78,7 @@ export default function Home() {
     const file = event.target.files?.[0];
     setSelectedFile(file ?? null);
     setSelectedFileName(file ? file.name : "");
-    setRefinedResumeText(null);
+    setAnalysisResult(null);
     setParseError("");
     setTouched((previous) => ({ ...previous, pdf: true }));
     setErrors(getValidationErrors(file ?? null, jobDescription));
@@ -53,7 +87,7 @@ export default function Home() {
   const handleClearSelectedFile = () => {
     setSelectedFileName("");
     setSelectedFile(null);
-    setRefinedResumeText(null);
+    setAnalysisResult(null);
     setParseError("");
     setTouched((previous) => ({ ...previous, pdf: true }));
     setErrors(getValidationErrors(null, jobDescription));
@@ -82,14 +116,15 @@ export default function Home() {
     setNormalizedJobDescription(nextNormalizedJobDescription);
 
     setParseError("");
-    setRefinedResumeText(null);
+    setAnalysisResult(null);
     setIsParsing(true);
 
     try {
       const formData = new FormData();
       formData.append("resume", selectedFile);
+      formData.append("jobDescription", jobDescription);
 
-      const response = await fetch("/api/parse-resume", {
+      const response = await fetch("/api/analyze-resume", {
         method: "POST",
         body: formData,
       });
@@ -98,23 +133,28 @@ export default function Home() {
       const errorMessage =
         typeof data?.error === "string"
           ? data.error
-          : "Failed to connect to parse route.";
+          : "Failed to connect to analyze route.";
 
       if (!response.ok || data?.success !== true) {
         throw new Error(errorMessage);
       }
 
-      if (typeof data.refinedText === "string" && data.refinedText.trim()) {
-        setRefinedResumeText(data.refinedText);
-      } else {
-        setRefinedResumeText(null);
-      }
+      setAnalysisResult({
+        score: typeof data?.score === "number" ? data.score : 0,
+        matchedSkills: Array.isArray(data?.matchedSkills)
+          ? data.matchedSkills
+          : [],
+        missingSkills: Array.isArray(data?.missingSkills)
+          ? data.missingSkills
+          : [],
+        extraSkills: Array.isArray(data?.extraSkills) ? data.extraSkills : [],
+      });
     } catch (error: unknown) {
-      setRefinedResumeText(null);
+      setAnalysisResult(null);
       setParseError(
         error instanceof Error
           ? error.message
-          : "Failed to connect to parse route.",
+          : "Failed to connect to analyze route.",
       );
     } finally {
       setIsParsing(false);
@@ -226,6 +266,7 @@ export default function Home() {
                 onChange={(event) => {
                   const nextJobDescription = event.target.value;
                   setJobDescription(nextJobDescription);
+                  setAnalysisResult(null);
                   setParseError("");
                   setTouched((previous) => ({
                     ...previous,
@@ -233,7 +274,7 @@ export default function Home() {
                   }));
                   setErrors(getValidationErrors(selectedFile, nextJobDescription));
                 }}
-                maxLength={700}
+                maxLength={1500}
                 rows={8}
                 placeholder="Paste the full job description here (responsibilities, requirements, and preferred skills)."
                 className="mt-2 w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition-colors focus:border-cyan-400"
@@ -246,7 +287,7 @@ export default function Home() {
               ) : null}
 
               <p className="mt-2 text-right text-xs text-slate-400">
-                {jobDescription.length} / 700
+                {jobDescription.length} / 1500
               </p>
             </div>
 
@@ -255,20 +296,118 @@ export default function Home() {
               disabled={!isFormValid || isParsing}
               className="mt-7 w-full rounded-xl border border-sky-200 bg-sky-200 px-5 py-3 text-base font-semibold text-sky-950 shadow-[0_10px_30px_-14px_rgba(125,211,252,0.95)] transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-sky-200"
             >
-              {isParsing ? "Parsing Resume..." : "Analyze Resume"}
+              {isParsing ? "Analyzing Resume..." : "Analyze Resume"}
             </button>
 
-            {refinedResumeText ? (
+            {analysisResult && !parseError && !isParsing ? (
               <div className="mt-6">
                 <h3 className="text-base font-semibold text-slate-100">
-                  Extracted Resume Preview
+                  ATS Analysis Result
                 </h3>
-                <p className="mt-1 text-sm text-slate-400">
-                  This is the refined text extracted from your uploaded resume.
-                </p>
+                <div className="mt-4 flex flex-col items-center">
+                  <div className="rounded-full border border-[#ffffff] p-1">
+                    <div
+                      className="relative h-40 w-40 rounded-full"
+                      style={{
+                        background: `conic-gradient(#16a34a ${displayedScore}%, #dc2626 ${displayedScore}% 100%)`,
+                      }}
+                    >
+                      <div className="absolute inset-[14px] flex items-center justify-center rounded-full bg-slate-950">
+                        <span
+                          className={`text-3xl font-bold ${
+                            displayedScore < 50 ? "text-red-500" : "text-green-500"
+                          }`}
+                        >
+                          %{displayedScore}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-center text-sm text-slate-400">
+                    {analysisResult.matchedSkills.length} out of{" "}
+                    {analysisResult.matchedSkills.length +
+                      analysisResult.missingSkills.length}{" "}
+                    job skills matched
+                  </p>
+                </div>
 
-                <div className="mt-3 h-72 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-950/70 p-4 text-sm leading-6 text-slate-200">
-                  {refinedResumeText}
+                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-green-400">
+                        Matched Skills
+                      </h4>
+                      <span className="rounded-full border border-green-500/50 bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-300">
+                        {analysisResult.matchedSkills.length}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex h-[13.5rem] flex-wrap content-start gap-2 overflow-y-auto pr-1">
+                      {analysisResult.matchedSkills.length > 0 ? (
+                        analysisResult.matchedSkills.map((skill) => (
+                          <span
+                            key={skill.id}
+                            className="rounded-full border border-green-500/50 px-2.5 py-1 text-xs font-medium text-green-300"
+                          >
+                            {skill.name}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-xs text-green-200/80">No matched skills.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-red-400">
+                        Missing Skills
+                      </h4>
+                      <span className="rounded-full border border-red-500/50 bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-300">
+                        {analysisResult.missingSkills.length}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex h-[13.5rem] flex-wrap content-start gap-2 overflow-y-auto pr-1">
+                      {analysisResult.missingSkills.length > 0 ? (
+                        analysisResult.missingSkills.map((skill) => (
+                          <span
+                            key={skill.id}
+                            className="rounded-full border border-red-500/50 px-2.5 py-1 text-xs font-medium text-red-300"
+                          >
+                            {skill.name}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-xs text-red-200/80">No missing skills.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-500/30 bg-slate-500/5 p-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-slate-300">
+                        Additional Skills
+                      </h4>
+                      <span className="rounded-full border border-slate-400/50 bg-slate-500/15 px-2 py-0.5 text-xs font-semibold text-slate-300">
+                        {analysisResult.extraSkills.length}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex h-[13.5rem] flex-wrap content-start gap-2 overflow-y-auto pr-1">
+                      {analysisResult.extraSkills.length > 0 ? (
+                        analysisResult.extraSkills.map((skill) => (
+                          <span
+                            key={skill.id}
+                            className="rounded-full border border-slate-400/50 px-2.5 py-1 text-xs font-medium text-slate-300"
+                          >
+                            {skill.name}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-xs text-slate-300/80">
+                          No additional skills.
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : null}

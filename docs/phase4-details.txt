@@ -1,0 +1,178 @@
+Overview
+
+Phase 4 introduces the core ATS matching engine.
+
+While Phase 3 focused on text preprocessing (refinement, normalization, tokenization, and unified data modeling), Phase 4 implements structured skill extraction, comparison logic, and scoring.
+
+The goal of this phase is to transform the application from a text processing tool into a real rule-based ATS-style resume analyzer.
+
+This phase includes:
+	•	A structured and scalable skill dictionary
+	•	Skill extraction from resume and job description
+	•	Matching engine
+	•	Missing skill detection
+	•	Basic ATS scoring logic
+	•	Controlled backend and UI integration
+
+⸻
+
+Task 4.1 — Structured Skill Dictionary
+
+Goal
+
+Create a scalable, categorized, and synonym-aware skill dictionary that can support real-world resume matching.
+
+This dictionary must:
+	•	Be extensible
+	•	Support multi-word skills
+	•	Support synonyms
+	•	Be categorized
+	•	Be cleanly separated from matching logic
+
+Architecture
+
+Location:
+
+src/data/skills/
+
+Structure:
+	•	types.ts → skill-related type definitions
+	•	skills.ts → full skill list
+
+Skill categories should include:
+	•	programming
+	•	frontend
+	•	backend
+	•	qa
+	•	devops
+	•	database
+	•	cloud
+	•	tools
+	•	methodology
+
+Each skill should include:
+	•	id
+	•	name
+	•	category
+	•	optional synonyms
+
+Example concept:
+
+A skill like “Selenium WebDriver” may include synonyms such as “selenium” or “selenium webdriver”.
+
+Scope
+
+The initial dictionary should contain approximately 150–300 common software engineering skills, covering:
+	•	Programming languages
+	•	Frontend frameworks
+	•	Backend technologies
+	•	Testing tools
+	•	DevOps tools
+	•	Cloud services
+	•	Databases
+	•	Engineering methodologies
+
+The dictionary should not be minimal. It should be realistic and usable by different users testing the application.
+
+⸻
+
+Task 4.2 — Skill Extraction Engine
+
+Goal
+
+Extract recognized skills from:
+	•	Resume preprocessed data
+	•	Job description preprocessed data
+
+Input:
+	•	PreprocessedTextData (tokens + phrases)
+	•	Skill dictionary
+
+Output:
+	•	detectedSkills list
+
+Extraction logic:
+	•	Check phrases first (multi-word skills)
+	•	Then check single tokens
+	•	Use synonyms for matching
+	•	Matching must be case-insensitive
+	•	No fuzzy matching yet (strict dictionary-based match only)
+
+⸻
+
+Task 4.3 — Skill Matching Engine
+
+Goal
+
+Compare extracted resume skills and job description skills.
+
+Input:
+	•	resumeSkills
+	•	jdSkills
+
+Output:
+	•	matchedSkills
+	•	missingSkills
+	•	extraSkills
+
+Definitions:
+	•	matchedSkills → Skills found in both resume and JD
+	•	missingSkills → Skills present in JD but not in resume
+	•	extraSkills → Skills present in resume but not in JD
+
+Matching must be based on skill id (not raw text).
+
+⸻
+
+Task 4.4 — Basic ATS Score Calculation
+
+Goal
+
+Produce an initial rule-based ATS score.
+
+Initial formula:
+
+Score equals matchedSkills divided by totalJdSkills multiplied by 100.
+
+Constraints:
+	•	Score must be between 0 and 100
+	•	Round to nearest integer
+	•	No weighting yet
+	•	No section-based scoring yet
+
+Future phases may introduce weighted scoring.
+
+⸻
+
+Task 4.5 — Backend Integration
+
+Goal
+
+Integrate skill extraction and matching into the API layer.
+
+The analyze route should:
+	1.	Receive resume and job description
+	2.	Preprocess both texts
+	3.	Build PreprocessedTextData objects
+	4.	Extract skills
+	5.	Compute matching result
+	6.	Compute ATS score
+	7.	Return structured JSON including score, matched skills, missing skills, and extra skills
+
+⸻
+
+Task 4.6 — UI Integration
+
+Goal
+
+Display analysis results in the frontend.
+
+UI elements should include:
+	•	ATS Score card
+	•	Matched skills section
+	•	Missing skills section
+	•	Extra skills section
+
+The UI should remain clean and minimal.
+
+No advanced analytics yet.
