@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { skillDictionary } from "../../../data/skills/skills";
 import { buildJobDescriptionPreprocessedData } from "../../../lib/buildJobDescriptionPreprocessedData";
 import { buildResumePreprocessedData } from "../../../lib/buildResumePreprocessedData";
-import { calculateAtsScore } from "../../../lib/calculateAtsScore";
+import { calculateAchievementScore } from "../../../lib/calculateAchievementScore";
+import { calculateExperienceAlignmentScore } from "../../../lib/calculateExperienceAlignmentScore";
+import { calculateKeywordCoverageScore } from "../../../lib/calculateKeywordCoverageScore";
+import { calculateSkillMatchScore } from "../../../lib/calculateSkillMatchScore";
+import { calculateStructureScore } from "../../../lib/calculateStructureScore";
+import { calculateWeightedAtsScore } from "../../../lib/calculateWeightedAtsScore";
 import { cleanResumeText } from "../../../lib/cleanResumeText";
 import { extractPdfText } from "../../../lib/extractPdfText";
 import { extractSkillsFromText } from "../../../lib/extractSkillsFromText";
@@ -80,14 +85,88 @@ export async function POST(request: Request) {
     );
     const refinedExtraSkills = refineSkillResults(extraSkills, skillDictionary);
 
-    const score = calculateAtsScore({
+    const skillMatchScore = calculateSkillMatchScore({
       matchedSkillsCount: matchedSkills.length,
       totalJdSkillsCount: jdSkills.length,
     });
 
+    const keywordCoverageResult = calculateKeywordCoverageScore({
+      resumeText: refinedResumeText,
+      jobDescriptionText: normalizedJobDescription,
+    });
+
+    const experienceAlignmentResult = calculateExperienceAlignmentScore({
+      resumeText: refinedResumeText,
+      jobDescriptionText: normalizedJobDescription,
+    });
+
+    const structureResult = calculateStructureScore({
+      resumeText: refinedResumeText,
+    });
+
+    const achievementResult = calculateAchievementScore({
+      resumeText: refinedResumeText,
+    });
+
+    const weightedScoreResult = calculateWeightedAtsScore({
+      skillMatchScore,
+      keywordCoverageScore: keywordCoverageResult.score,
+      experienceAlignmentScore: experienceAlignmentResult.score,
+      structureScore: structureResult.score,
+      achievementScore: achievementResult.score,
+    });
+
+    const wordCount = normalizedJobDescription.split(/\s+/).length;
+
+    const hasMeaningfulJobRequirements =
+      wordCount >= 5 &&
+      (jdSkills.length >= 1 ||
+        keywordCoverageResult.consideredKeywords.length >= 2);
+
+    const scoreBreakdown = hasMeaningfulJobRequirements
+      ? {
+          skillMatchScore,
+          keywordCoverageScore: keywordCoverageResult.score,
+          experienceAlignmentScore: experienceAlignmentResult.score,
+          structureScore: structureResult.score,
+          achievementScore: achievementResult.score,
+        }
+      : {
+          skillMatchScore: 0,
+          keywordCoverageScore: 0,
+          experienceAlignmentScore: 0,
+          structureScore: 0,
+          achievementScore: 0,
+        };
+
+    const finalScore = hasMeaningfulJobRequirements
+      ? weightedScoreResult.finalScore
+      : 0;
+
     return NextResponse.json({
       success: true,
-      score,
+      finalScore,
+      jobDescriptionQuality: {
+        hasMeaningfulRequirements: hasMeaningfulJobRequirements,
+      },
+      scoreBreakdown,
+      scoreDetails: {
+        experienceAlignment: {
+          detectedResumeLevel: experienceAlignmentResult.detectedResumeLevel,
+          detectedJobLevel: experienceAlignmentResult.detectedJobLevel,
+          reasoning: experienceAlignmentResult.reasoning,
+        },
+        structure: {
+          detectedSections: structureResult.detectedSections,
+          bulletCount: structureResult.bulletCount,
+          reasoning: structureResult.reasoning,
+        },
+        achievement: {
+          numericSignalCount: achievementResult.numericSignalCount,
+          actionSignalCount: achievementResult.actionSignalCount,
+          reasoning: achievementResult.reasoning,
+        },
+      },
       matchedSkills: refinedMatchedSkills,
       missingSkills: refinedMissingSkills,
       extraSkills: refinedExtraSkills,

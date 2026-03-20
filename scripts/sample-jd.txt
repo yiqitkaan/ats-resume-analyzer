@@ -14,3 +14,31 @@
         Requirements:
    - 3+ years of QA experience
 	- Strong communication skills
+  ------------------------------------------------------------------------
+
+Mid-Level QA Automation Engineer
+
+We are looking for a QA Automation Engineer with strong experience in building scalable test automation frameworks.
+
+Required skills:
+- Selenium WebDriver
+- Test Automation
+- API Testing
+- Java or TypeScript
+- CI/CD pipelines
+- GitHub Actions
+- Agile methodology
+
+Responsibilities:
+- Design and maintain automated test frameworks
+- Develop API and UI test cases
+- Integrate automated tests into CI/CD pipelines
+- Perform regression and integration testing
+- Collaborate with developers and product teams
+- Improve overall test coverage and system reliability
+
+Nice to have:
+- Docker
+- AWS
+- Performance testing
+- PostgreSQL

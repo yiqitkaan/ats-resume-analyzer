@@ -9,18 +9,81 @@ type FormErrors = {
   jobDescription: string;
 };
 
+type ScoreBreakdown = {
+  skillMatchScore: number;
+  keywordCoverageScore: number;
+  experienceAlignmentScore: number;
+  structureScore: number;
+  achievementScore: number;
+};
+
+type ScoreDetails = {
+  experienceAlignment: {
+    detectedResumeLevel: string | null;
+    detectedJobLevel: string | null;
+    reasoning: string;
+  };
+  structure: {
+    detectedSections: string[];
+    bulletCount: number;
+    reasoning: string;
+  };
+  achievement: {
+    numericSignalCount: number;
+    actionSignalCount: number;
+    reasoning: string;
+  };
+};
+
+type AnalysisResult = {
+  finalScore: number;
+  scoreBreakdown: ScoreBreakdown;
+  scoreDetails: ScoreDetails;
+  matchedSkills: ExtractedSkill[];
+  missingSkills: ExtractedSkill[];
+  extraSkills: ExtractedSkill[];
+};
+
+type ScoreBarProps = {
+  label: string;
+  score: number;
+  reasoning?: string;
+};
+
+function ScoreBar({ label, score, reasoning }: ScoreBarProps) {
+  const safeScore = Math.max(0, Math.min(100, Math.round(score)));
+  const fillColor = safeScore < 50 ? "bg-red-500" : "bg-green-500";
+
+  return (
+    <div className="rounded-lg border border-white/70 bg-slate-950/40 p-3">
+      <div className="flex items-center justify-between text-sm">
+        <p className="font-medium text-slate-200">{label}</p>
+        <span className="font-semibold text-slate-300">%{safeScore}</span>
+      </div>
+      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${fillColor}`}
+          style={{ width: `${safeScore}%` }}
+        />
+      </div>
+      {reasoning ? (
+        <p className="mt-2 text-xs leading-relaxed text-slate-400">
+          {reasoning}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [, setNormalizedJobDescription] = useState<string | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<{
-    score: number;
-    matchedSkills: ExtractedSkill[];
-    missingSkills: ExtractedSkill[];
-    extraSkills: ExtractedSkill[];
-  } | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
+    null,
+  );
   const [animatedScore, setAnimatedScore] = useState(0);
   const [isParsing, setIsParsing] = useState(false);
   const [parseError, setParseError] = useState("");
@@ -39,7 +102,7 @@ export default function Home() {
       return;
     }
 
-    const targetScore = analysisResult.score;
+    const targetScore = analysisResult.finalScore;
     const duration = 800;
     const startTime = performance.now();
     let frameId = 0;
@@ -68,7 +131,9 @@ export default function Home() {
   ): FormErrors => {
     return {
       pdf: file ? "" : "Please select a PDF resume.",
-      jobDescription: description.trim() ? "" : "Please enter a job description.",
+      jobDescription: description.trim()
+        ? ""
+        : "Please enter a job description.",
     };
   };
 
@@ -112,7 +177,8 @@ export default function Home() {
       return;
     }
 
-    const nextNormalizedJobDescription = normalizeJobDescription(jobDescription);
+    const nextNormalizedJobDescription =
+      normalizeJobDescription(jobDescription);
     setNormalizedJobDescription(nextNormalizedJobDescription);
 
     setParseError("");
@@ -140,7 +206,79 @@ export default function Home() {
       }
 
       setAnalysisResult({
-        score: typeof data?.score === "number" ? data.score : 0,
+        finalScore: typeof data?.finalScore === "number" ? data.finalScore : 0,
+        scoreBreakdown: {
+          skillMatchScore:
+            typeof data?.scoreBreakdown?.skillMatchScore === "number"
+              ? data.scoreBreakdown.skillMatchScore
+              : 0,
+          keywordCoverageScore:
+            typeof data?.scoreBreakdown?.keywordCoverageScore === "number"
+              ? data.scoreBreakdown.keywordCoverageScore
+              : 0,
+          experienceAlignmentScore:
+            typeof data?.scoreBreakdown?.experienceAlignmentScore === "number"
+              ? data.scoreBreakdown.experienceAlignmentScore
+              : 0,
+          structureScore:
+            typeof data?.scoreBreakdown?.structureScore === "number"
+              ? data.scoreBreakdown.structureScore
+              : 0,
+          achievementScore:
+            typeof data?.scoreBreakdown?.achievementScore === "number"
+              ? data.scoreBreakdown.achievementScore
+              : 0,
+        },
+        scoreDetails: {
+          experienceAlignment: {
+            detectedResumeLevel:
+              typeof data?.scoreDetails?.experienceAlignment
+                ?.detectedResumeLevel === "string"
+                ? data.scoreDetails.experienceAlignment.detectedResumeLevel
+                : null,
+            detectedJobLevel:
+              typeof data?.scoreDetails?.experienceAlignment
+                ?.detectedJobLevel === "string"
+                ? data.scoreDetails.experienceAlignment.detectedJobLevel
+                : null,
+            reasoning:
+              typeof data?.scoreDetails?.experienceAlignment?.reasoning ===
+              "string"
+                ? data.scoreDetails.experienceAlignment.reasoning
+                : "",
+          },
+          structure: {
+            detectedSections: Array.isArray(
+              data?.scoreDetails?.structure?.detectedSections,
+            )
+              ? data.scoreDetails.structure.detectedSections
+              : [],
+            bulletCount:
+              typeof data?.scoreDetails?.structure?.bulletCount === "number"
+                ? data.scoreDetails.structure.bulletCount
+                : 0,
+            reasoning:
+              typeof data?.scoreDetails?.structure?.reasoning === "string"
+                ? data.scoreDetails.structure.reasoning
+                : "",
+          },
+          achievement: {
+            numericSignalCount:
+              typeof data?.scoreDetails?.achievement?.numericSignalCount ===
+              "number"
+                ? data.scoreDetails.achievement.numericSignalCount
+                : 0,
+            actionSignalCount:
+              typeof data?.scoreDetails?.achievement?.actionSignalCount ===
+              "number"
+                ? data.scoreDetails.achievement.actionSignalCount
+                : 0,
+            reasoning:
+              typeof data?.scoreDetails?.achievement?.reasoning === "string"
+                ? data.scoreDetails.achievement.reasoning
+                : "",
+          },
+        },
         matchedSkills: Array.isArray(data?.matchedSkills)
           ? data.matchedSkills
           : [],
@@ -222,8 +360,8 @@ export default function Home() {
                     : "Upload PDF"}
                 </label>
 
-              {selectedFile ? (
-                <button
+                {selectedFile ? (
+                  <button
                     type="button"
                     onClick={handleClearSelectedFile}
                     aria-label="Remove selected file"
@@ -272,7 +410,9 @@ export default function Home() {
                     ...previous,
                     jobDescription: true,
                   }));
-                  setErrors(getValidationErrors(selectedFile, nextJobDescription));
+                  setErrors(
+                    getValidationErrors(selectedFile, nextJobDescription),
+                  );
                 }}
                 maxLength={1500}
                 rows={8}
@@ -304,30 +444,79 @@ export default function Home() {
                 <h3 className="text-base font-semibold text-slate-100">
                   ATS Analysis Result
                 </h3>
-                <div className="mt-4 flex flex-col items-center">
-                  <div className="rounded-full border border-[#ffffff] p-1">
-                    <div
-                      className="relative h-40 w-40 rounded-full"
-                      style={{
-                        background: `conic-gradient(#16a34a ${displayedScore}%, #dc2626 ${displayedScore}% 100%)`,
-                      }}
-                    >
-                      <div className="absolute inset-[14px] flex items-center justify-center rounded-full bg-slate-950">
-                        <span
-                          className={`text-3xl font-bold ${
-                            displayedScore < 50 ? "text-red-500" : "text-green-500"
-                          }`}
-                        >
-                          %{displayedScore}
-                        </span>
+                <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+                  <div className="order-2 space-y-3 lg:order-1">
+                    <ScoreBar
+                      label="Skill Match"
+                      score={analysisResult.scoreBreakdown.skillMatchScore}
+                    />
+                    <ScoreBar
+                      label="Experience"
+                      score={
+                        analysisResult.scoreBreakdown.experienceAlignmentScore
+                      }
+                      reasoning={
+                        analysisResult.scoreDetails.experienceAlignment
+                          .reasoning
+                      }
+                    />
+                    <ScoreBar
+                      label="Keyword Coverage"
+                      score={analysisResult.scoreBreakdown.keywordCoverageScore}
+                    />
+                  </div>
+
+                  <div className="order-1 flex flex-col items-center lg:order-2">
+                    <div className="rounded-full border border-[#ffffff] p-1">
+                      <div
+                        className="relative h-40 w-40 rounded-full"
+                        style={{
+                          background: `conic-gradient(#16a34a ${displayedScore}%, #dc2626 ${displayedScore}% 100%)`,
+                        }}
+                      >
+                        <div className="absolute inset-[14px] flex items-center justify-center rounded-full bg-slate-950">
+                          <span
+                            className={`text-3xl font-bold ${
+                              displayedScore < 50
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
+                          >
+                            %{displayedScore}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <p className="mt-3 text-center text-sm text-slate-400">
+                      {analysisResult.matchedSkills.length} out of{" "}
+                      {analysisResult.matchedSkills.length +
+                        analysisResult.missingSkills.length}{" "}
+                      job skills matched
+                    </p>
                   </div>
-                  <p className="mt-3 text-center text-sm text-slate-400">
-                    {analysisResult.matchedSkills.length} out of{" "}
-                    {analysisResult.matchedSkills.length +
-                      analysisResult.missingSkills.length}{" "}
-                    job skills matched
+
+                  <div className="order-3 space-y-3">
+                    <ScoreBar
+                      label="Structure"
+                      score={analysisResult.scoreBreakdown.structureScore}
+                      reasoning={
+                        analysisResult.scoreDetails.structure.reasoning
+                      }
+                    />
+                    <ScoreBar
+                      label="Achievement"
+                      score={analysisResult.scoreBreakdown.achievementScore}
+                      reasoning={
+                        analysisResult.scoreDetails.achievement.reasoning
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-center">
+                  <p className="text-sm text-slate-400 max-w-2xl text-center">
+                    Weights: Skill Match 50%, Keyword Coverage 15%, Experience
+                    15%, Structure 10%, Achievement 10%
                   </p>
                 </div>
 
@@ -352,7 +541,9 @@ export default function Home() {
                           </span>
                         ))
                       ) : (
-                        <p className="text-xs text-green-200/80">No matched skills.</p>
+                        <p className="text-xs text-green-200/80">
+                          No matched skills.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -377,7 +568,9 @@ export default function Home() {
                           </span>
                         ))
                       ) : (
-                        <p className="text-xs text-red-200/80">No missing skills.</p>
+                        <p className="text-xs text-red-200/80">
+                          No missing skills.
+                        </p>
                       )}
                     </div>
                   </div>

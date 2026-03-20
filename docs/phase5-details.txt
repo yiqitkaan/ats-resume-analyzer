@@ -1,0 +1,224 @@
+Phase 5 — Score Breakdown Expansion
+
+Overview
+
+Phase 5 expands the ATS scoring system from a single skill-based score into a more realistic multi-factor evaluation model.
+
+Phase 4 introduced:
+	•	skill dictionary
+	•	skill extraction
+	•	matching engine
+	•	basic ATS score
+	•	backend analysis route
+	•	frontend result display
+
+However, the current score reflects only direct skill overlap between the resume and the job description.
+
+The goal of Phase 5 is to produce a more meaningful ATS-style score by introducing multiple scoring dimensions and combining them into a weighted overall score.
+
+This phase includes:
+	•	skill match score refinement
+	•	keyword coverage score
+	•	experience alignment score
+	•	structure score
+	•	achievement score
+	•	weighted overall score calculation
+	•	score breakdown display in UI
+
+⸻
+
+Task 5.1 — Skill Match Score Refinement
+
+Goal
+
+Keep the existing skill match score as one scoring dimension inside the larger breakdown system.
+
+Scope
+	•	Reuse the current matchedSkills and jdSkills counts
+	•	Treat skill match as one weighted component, not the whole score
+	•	Keep current formula simple and deterministic
+
+Output
+
+A dedicated skillMatchScore value that will later be combined with other scores.
+
+⸻
+
+Task 5.2 — Keyword Coverage Score
+
+Goal
+
+Measure whether important non-dictionary job description keywords also appear in the resume.
+
+Scope
+	•	Identify meaningful JD keywords that are not already captured as matched skills
+	•	Compare normalized keyword presence between resume and job description
+	•	Avoid overcounting trivial words
+	•	Keep logic rule-based and deterministic
+
+Examples of keyword-like signals
+	•	regression
+	•	automation
+	•	framework
+	•	collaboration
+	•	quality
+	•	performance
+	•	reliability
+
+Output
+
+A keywordCoverageScore value between 0 and 100.
+
+⸻
+
+Task 5.3 — Experience Alignment Score
+
+Goal
+
+Estimate how well the resume aligns with the expected seniority or experience signals in the job description.
+
+Scope
+	•	Detect experience indicators from JD such as:
+	•	junior
+	•	mid
+	•	senior
+	•	lead
+	•	intern
+	•	years of experience
+	•	Infer basic resume seniority from extracted text
+	•	Compare JD expectation with resume profile
+	•	Keep logic heuristic-based
+
+Output
+
+An experienceAlignmentScore value between 0 and 100.
+
+⸻
+
+Task 5.4 — Structure Score
+
+Goal
+
+Evaluate whether the resume has a clean and ATS-friendly structure.
+
+Scope
+	•	Check for presence of useful sections such as:
+	•	WORK EXPERIENCE
+	•	EDUCATION
+	•	SKILLS
+	•	LANGUAGE SKILLS
+	•	Check whether text has readable formatting
+	•	Check whether bullet-style descriptions exist
+	•	Reward resumes that look structured and parseable
+
+Output
+
+A structureScore value between 0 and 100.
+
+⸻
+
+Task 5.5 — Achievement Score
+
+Goal
+
+Reward resumes that include measurable achievements and impact-oriented language.
+
+Scope
+	•	Detect numbers, percentages, counts, or measurable outcomes
+	•	Detect achievement-like phrasing
+	•	Distinguish between simple duty descriptions and evidence of impact
+	•	Keep logic lightweight and rule-based
+
+Examples of achievement signals
+	•	percentages
+	•	counts
+	•	ranks
+	•	improved
+	•	increased
+	•	reduced
+	•	achieved
+
+Output
+
+An achievementScore value between 0 and 100.
+
+⸻
+
+Task 5.6 — Weighted Overall Score
+
+Goal
+
+Combine all individual score dimensions into one weighted final ATS score.
+
+Suggested components
+	•	skillMatchScore
+	•	keywordCoverageScore
+	•	experienceAlignmentScore
+	•	structureScore
+	•	achievementScore
+
+Suggested initial weighting
+	•	skillMatchScore: 50
+	•	keywordCoverageScore: 15
+	•	experienceAlignmentScore: 15
+	•	structureScore: 10
+	•	achievementScore: 10
+
+These weights can be adjusted later if needed.
+
+Output
+
+A finalAtsScore value between 0 and 100.
+
+⸻
+
+Task 5.7 — Backend Integration
+
+Goal
+
+Extend the analysis API so it returns the full score breakdown instead of only a single score.
+
+Expected response shape
+	•	final score
+	•	score breakdown object
+	•	existing matched/missing/additional skill results
+
+This task should keep the backend pipeline readable and modular.
+
+⸻
+
+Task 5.8 — UI Score Breakdown Display
+
+Goal
+
+Display the score breakdown clearly in the frontend.
+
+UI additions should include
+	•	final overall score
+	•	individual score categories
+	•	readable labels
+	•	simple score cards or bars
+	•	clean explanation of what each score means
+
+This should improve interpretability without making the UI noisy.
+
+⸻
+
+Design Principles for Phase 5
+	•	Keep scoring rule-based and explainable
+	•	Avoid AI or fuzzy reasoning in this phase
+	•	Keep helper logic modular
+	•	Keep scoring deterministic and testable
+	•	Prefer simple heuristics over premature complexity
+
+⸻
+
+End of Phase 5 Expected Outcome
+
+By the end of Phase 5, the project should:
+	•	evaluate more than direct skill overlap
+	•	produce a weighted multi-factor ATS score
+	•	explain score components clearly
+	•	provide a more realistic and useful ATS-style evaluation
+
+At this stage, the analyzer becomes significantly more intelligent and closer to a real scoring product.
