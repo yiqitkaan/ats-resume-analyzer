@@ -1,0 +1,210 @@
+PHASE 6 — EXPLANATION & AI FEEDBACK LAYER
+
+Goal:
+Transform raw ATS scores into clear, structured, and actionable feedback for the user.
+Phase 6 focuses only on the rule-based explanation layer built on top of the deterministic scoring engine.
+
+--------------------------------------------------
+
+OVERVIEW
+
+Phase 5 delivered:
+- Multi-factor ATS scoring engine
+- Deterministic, explainable scoring breakdown
+
+Phase 6 builds on top of that by adding:
+- Human-readable explanations
+- Actionable improvement suggestions
+- Clear frontend explanation display
+
+--------------------------------------------------
+
+ARCHITECTURE PRINCIPLE
+
+Single-layer design:
+
+Layer 1 (Rule-Based — Ground Truth)
+- Deterministic
+- Testable
+- Based entirely on computed scores and signals
+- Source of truth
+
+Why this approach:
+- Core ATS decisions remain stable and explainable
+- Resume Analysis Insights stay fully rule-based
+- The system stays debuggable and reliable
+- Explanation quality can be improved without introducing AI dependency
+
+--------------------------------------------------
+
+TASK BREAKDOWN
+
+--------------------------------------------------
+6.1 — Detailed Explanation Engine (Rule-Based)
+--------------------------------------------------
+
+Status: COMPLETED
+
+Objective:
+Convert ATS analysis results into structured explanation sections.
+
+Input:
+- finalScore
+- scoreBreakdown
+- scoreDetails
+- matchedSkills
+- missingSkills
+- extraSkills
+
+Output:
+{
+  overallSummary: string;
+  strengths: string[];
+  mainGaps: string[];
+  suggestedImprovements: string[];
+}
+
+Sections:
+
+1) Overall Summary
+- Based on score bands:
+  80+ → strong alignment
+  60–79 → good/moderate alignment
+  40–59 → partial alignment
+  <40 → limited alignment
+
+- Includes main reason:
+  skill gaps / keyword mismatch / experience mismatch / strong structure
+
+2) Strengths
+- High scoring dimensions
+- Matched skills (limited examples)
+- Strong structure / achievement signals
+- Good experience alignment
+
+3) Main Gaps
+- Missing skills (limited examples)
+- Low keyword coverage
+- Experience mismatch
+- Weak structure or achievements
+
+4) Suggested Improvements
+- Directly tied to weak areas
+- Practical and realistic
+- No generic advice if not needed
+
+Constraints:
+- 2–5 items per section
+- No duplication across sections
+- Deterministic output
+
+--------------------------------------------------
+6.2 — Backend Integration
+--------------------------------------------------
+
+Status: COMPLETED
+
+Objective:
+Integrate explanation engine into API response.
+
+Modify:
+src/app/api/analyze-resume/route.ts
+
+Add:
+const explanation = buildDetailedExplanation(...)
+
+Return in API:
+{
+  ...
+  explanation: {
+    overallSummary,
+    strengths,
+    mainGaps,
+    suggestedImprovements
+  }
+}
+
+Requirements:
+- Do NOT change existing response structure
+- Add explanation as an additional field
+- Keep API clean and readable
+
+--------------------------------------------------
+6.3 — UI Integration (Explanation Display)
+--------------------------------------------------
+
+Status: COMPLETED
+
+Objective:
+Display explanation sections in frontend.
+
+Add UI sections:
+- Overall Summary (top)
+- Strengths
+- Main Gaps
+- Suggested Improvements
+
+Design goals:
+- Clean card-based layout
+- Readable bullet points
+- Clear separation of sections
+- Consistent with existing dashboard
+
+--------------------------------------------------
+6.4 — Phase Boundary Note
+--------------------------------------------------
+
+Status: COMPLETED
+
+Objective:
+Phase 6 ends with a fully rule-based explanation system.
+No AI feature is included in the active scope of this phase.
+
+Decision:
+- Resume Analysis Insights remain fully rule-based
+- AI work is intentionally postponed to the next phase
+- Phase 7 will become the dedicated AI phase
+
+--------------------------------------------------
+6.5 — Phase 6 Closure
+--------------------------------------------------
+
+Status: COMPLETED
+
+Objective:
+Formally close Phase 6 as the explanation-only phase.
+
+Outcome:
+- Rule-based explanation engine is complete
+- Backend integration is complete
+- Frontend explanation display is complete
+- No AI dependency exists in the active Phase 6 flow
+
+--------------------------------------------------
+6.6 — Transition to Phase 7
+--------------------------------------------------
+
+Status: READY
+
+Objective:
+Prepare the project to move AI-related work into a new dedicated phase.
+
+Next direction:
+- Phase 7 will contain the AI Resume Optimizer
+- AI will be used to improve resume content, not to rewrite analysis
+- Phase 6 remains the stable rule-based foundation
+
+--------------------------------------------------
+
+SUCCESS CRITERIA
+
+- Explanations are consistent and deterministic at the core
+- Resume Analysis Insights remain fully rule-based
+- Backend explanation integration is complete
+- Frontend explanation display is complete
+- The system remains debuggable and testable
+- Phase 6 ends with no active AI dependency
+
+--------------------------------------------------
+
+END OF PHASE 6

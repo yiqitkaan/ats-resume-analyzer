@@ -35,6 +35,20 @@ type ScoreDetails = {
   };
 };
 
+type DetailedExplanation = {
+  overallSummary: string;
+  strengths: string[];
+  mainGaps: string[];
+  suggestedImprovements: string[];
+};
+
+type AiExplanation = {
+  improvedSummary: string;
+  improvedStrengths: string[];
+  improvedGaps: string[];
+  improvedSuggestions: string[];
+};
+
 type AnalysisResult = {
   finalScore: number;
   scoreBreakdown: ScoreBreakdown;
@@ -42,6 +56,8 @@ type AnalysisResult = {
   matchedSkills: ExtractedSkill[];
   missingSkills: ExtractedSkill[];
   extraSkills: ExtractedSkill[];
+  explanation: DetailedExplanation | null;
+  aiExplanation: AiExplanation | null;
 };
 
 type ScoreBarProps = {
@@ -77,6 +93,7 @@ function ScoreBar({ label, score, reasoning }: ScoreBarProps) {
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastInsightChangeAtRef = useRef(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -84,6 +101,7 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
     null,
   );
+  const [activeInsightIndex, setActiveInsightIndex] = useState(0);
   const [animatedScore, setAnimatedScore] = useState(0);
   const [isParsing, setIsParsing] = useState(false);
   const [parseError, setParseError] = useState("");
@@ -123,7 +141,94 @@ export default function Home() {
     };
   }, [analysisResult]);
 
+  useEffect(() => {
+    setActiveInsightIndex(0);
+    lastInsightChangeAtRef.current = 0;
+  }, [
+    analysisResult?.aiExplanation?.improvedSummary,
+    analysisResult?.explanation?.overallSummary,
+  ]);
+
   const displayedScore = Math.max(0, Math.min(100, Math.round(animatedScore)));
+
+  const displayedExplanation = analysisResult?.aiExplanation
+    ? {
+        overallSummary: analysisResult.aiExplanation.improvedSummary,
+        strengths: analysisResult.aiExplanation.improvedStrengths,
+        mainGaps: analysisResult.aiExplanation.improvedGaps,
+        suggestedImprovements: analysisResult.aiExplanation.improvedSuggestions,
+      }
+    : analysisResult?.explanation ?? null;
+
+  const insightCards = displayedExplanation
+    ? [
+        {
+          title: "Strengths",
+          titleColor: "text-green-300",
+          borderColor: "border-green-400/35",
+          glowColor: "shadow-[0_25px_45px_-35px_rgba(34,197,94,0.55)]",
+          items: displayedExplanation.strengths,
+        },
+        {
+          title: "Main Gaps",
+          titleColor: "text-red-300",
+          borderColor: "border-red-400/35",
+          glowColor: "shadow-[0_25px_45px_-35px_rgba(248,113,113,0.55)]",
+          items: displayedExplanation.mainGaps,
+        },
+        {
+          title: "Suggested Improvements",
+          titleColor: "text-blue-300",
+          borderColor: "border-blue-400/35",
+          glowColor: "shadow-[0_25px_45px_-35px_rgba(96,165,250,0.55)]",
+          items: displayedExplanation.suggestedImprovements,
+        },
+      ]
+    : [];
+
+  const changeInsightCard = (direction: 1 | -1, totalCards: number) => {
+    if (totalCards <= 1) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastInsightChangeAtRef.current < 420) {
+      return;
+    }
+
+    lastInsightChangeAtRef.current = now;
+    setActiveInsightIndex((previous) => {
+      const next = previous + direction;
+
+      if (next < 0) {
+        return totalCards - 1;
+      }
+
+      if (next >= totalCards) {
+        return 0;
+      }
+
+      return next;
+    });
+  };
+
+  const getInsightCardOffset = (
+    cardIndex: number,
+    activeIndex: number,
+    totalCards: number,
+  ) => {
+    let offset = cardIndex - activeIndex;
+
+    if (offset > totalCards / 2) {
+      offset -= totalCards;
+    }
+
+    if (offset < -totalCards / 2) {
+      offset += totalCards;
+    }
+
+    return offset;
+  };
 
   const getValidationErrors = (
     file: File | null,
@@ -286,6 +391,35 @@ export default function Home() {
           ? data.missingSkills
           : [],
         extraSkills: Array.isArray(data?.extraSkills) ? data.extraSkills : [],
+        explanation:
+          typeof data?.explanation?.overallSummary === "string"
+            ? {
+                overallSummary: data.explanation.overallSummary,
+                strengths: Array.isArray(data?.explanation?.strengths)
+                  ? data.explanation.strengths
+                  : [],
+                mainGaps: Array.isArray(data?.explanation?.mainGaps)
+                  ? data.explanation.mainGaps
+                  : [],
+                suggestedImprovements: Array.isArray(
+                  data?.explanation?.suggestedImprovements,
+                )
+                  ? data.explanation.suggestedImprovements
+                  : [],
+              }
+            : null,
+        aiExplanation:
+          typeof data?.aiExplanation?.improvedSummary === "string" &&
+          Array.isArray(data?.aiExplanation?.improvedStrengths) &&
+          Array.isArray(data?.aiExplanation?.improvedGaps) &&
+          Array.isArray(data?.aiExplanation?.improvedSuggestions)
+            ? {
+                improvedSummary: data.aiExplanation.improvedSummary,
+                improvedStrengths: data.aiExplanation.improvedStrengths,
+                improvedGaps: data.aiExplanation.improvedGaps,
+                improvedSuggestions: data.aiExplanation.improvedSuggestions,
+              }
+            : null,
       });
     } catch (error: unknown) {
       setAnalysisResult(null);
@@ -307,14 +441,14 @@ export default function Home() {
       <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-8">
         <section className="space-y-4 text-center">
           <p className="mx-auto w-fit rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-slate-300">
-            Portfolio Project
+            AI-Powered Resume Analysis
           </p>
           <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
             ATS Resume Analyzer
           </h1>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
             Upload your resume and paste a job description to get an ATS-style
-            analysis of match quality, missing skills, and feedback.
+            analysis of match quality, missing skills, and AI-powered feedback.
           </p>
         </section>
 
@@ -434,9 +568,16 @@ export default function Home() {
             <button
               type="submit"
               disabled={!isFormValid || isParsing}
-              className="mt-7 w-full rounded-xl border border-sky-200 bg-sky-200 px-5 py-3 text-base font-semibold text-sky-950 shadow-[0_10px_30px_-14px_rgba(125,211,252,0.95)] transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-sky-200"
+              className="relative mt-7 w-full overflow-hidden rounded-xl border border-sky-200 bg-sky-200 px-5 py-3 text-base font-semibold text-sky-950 shadow-[0_10px_30px_-14px_rgba(125,211,252,0.95)] transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-sky-200"
             >
-              {isParsing ? "Analyzing Resume..." : "Analyze Resume"}
+              {isParsing ? (
+                <span className="pointer-events-none absolute inset-0 z-0">
+                  <span className="animate-button-shimmer absolute inset-y-0 w-1/3 -translate-x-[120%] bg-gradient-to-r from-transparent via-white to-transparent [filter:brightness(1.3)]" />
+                </span>
+              ) : null}
+              <span className="relative z-10">
+                {isParsing ? "Analyzing..." : "Analyze Resume"}
+              </span>
             </button>
 
             {analysisResult && !parseError && !isParsing ? (
@@ -602,6 +743,94 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+
+                {displayedExplanation ? (
+                  <div className="mt-12 rounded-2xl border border-white/15 bg-slate-950/70 p-6 shadow-[0_30px_60px_-35px_rgba(15,23,42,0.95)] sm:p-7">
+                    <h2 className="mb-5 text-xl font-semibold text-slate-100 sm:text-2xl">
+                      Resume Analysis Insights By AI
+                    </h2>
+
+                    <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/5 p-5 shadow-[0_18px_40px_-30px_rgba(34,211,238,0.45)]">
+                      <h3 className="mb-2 text-base font-semibold text-cyan-200 sm:text-lg">
+                        Overall Summary
+                      </h3>
+                      <p className="text-sm leading-7 text-slate-100 sm:text-base">
+                        {displayedExplanation.overallSummary}
+                      </p>
+                    </div>
+
+                    <div className="mt-24">
+                      <div
+                        className="mx-auto w-full max-w-3xl"
+                        style={{ perspective: "1400px" }}
+                      >
+                        <div className="relative h-[20rem] w-full [transform-style:preserve-3d]">
+                          {insightCards.map((card, index) => {
+                            const offset = getInsightCardOffset(
+                              index,
+                              activeInsightIndex,
+                              insightCards.length,
+                            );
+                            const isActive = offset === 0;
+
+                            const transform = isActive
+                              ? "translate3d(0, 0, 80px) rotateX(0deg) scale(1)"
+                              : offset > 0
+                                ? "translate3d(0, 86px, -70px) rotateX(-22deg) scale(0.88)"
+                                : "translate3d(0, -86px, -70px) rotateX(22deg) scale(0.88)";
+
+                            return (
+                              <article
+                                key={card.title}
+                                className={`absolute inset-x-0 mx-auto h-[15.75rem] w-full max-w-xl overflow-y-auto rounded-2xl border bg-slate-900/95 p-4 transition-all duration-500 ease-out [scrollbar-color:rgba(71,85,105,0.9)_rgba(2,6,23,0.95)] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-950/90 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-700/90 [&::-webkit-scrollbar-thumb]:hover:bg-slate-600/95 sm:p-5 ${card.borderColor} ${card.glowColor}`}
+                                style={{
+                                  transform,
+                                  opacity: isActive ? 1 : 0.38,
+                                  zIndex: isActive ? 30 : 12,
+                                }}
+                              >
+                                <h3
+                                  className={`text-sm font-semibold sm:text-base ${card.titleColor}`}
+                                >
+                                  {card.title}
+                                </h3>
+                                <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-relaxed text-slate-200 sm:text-sm">
+                                  {card.items.map(
+                                    (item: string, itemIndex: number) => (
+                                      <li key={itemIndex}>{item}</li>
+                                    ),
+                                  )}
+                                </ul>
+                              </article>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            changeInsightCard(-1, insightCards.length)
+                          }
+                          className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-white/10"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-xs text-slate-400">
+                          {activeInsightIndex + 1} / {insightCards.length}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => changeInsightCard(1, insightCards.length)}
+                          className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-white/10"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 

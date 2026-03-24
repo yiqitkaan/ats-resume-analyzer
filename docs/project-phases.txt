@@ -78,3 +78,92 @@ Phase 9 - Final Presentation
 - Prepare GitHub project description
 - Prepare CV-friendly explanation
 - Final polish for portfolio presentation
+ATS Resume Analyzer - Project Phases (Final)
+
+Phase 0 - Project Setup
+- Initialize Next.js project with TypeScript
+- Set up Git and GitHub repository
+- Configure project structure and folders
+- Add README and environment setup
+
+Phase 1 - Core UI and Input Layer
+- Build homepage layout
+- Add PDF upload input
+- Add job description textarea
+- Implement controlled form state
+- Add validation (file + job description)
+- Add reset behaviors for inputs
+
+Phase 2 - Resume Parsing Pipeline
+- Upload PDF to backend
+- Extract text from PDF
+- Clean and normalize raw resume text
+- Refine resume text for further processing
+
+Phase 3 - Preprocessing and Data Modeling
+- Normalize job description text
+- Build resume preprocessing model
+- Build job description preprocessing model
+- Tokenize and prepare text for comparison
+
+Phase 4 - Rule-Based ATS Analysis Engine
+- Build skill dictionary (with synonyms and hierarchy)
+- Extract skills from resume and job description
+- Match skills (matched / missing / extra)
+- Refine skill results
+- Calculate ATS score (skill-based)
+- Expose analysis via API route
+
+Phase 5 - Advanced Scoring System
+- Add keyword coverage score
+- Add experience alignment score
+- Add structure score
+- Add achievement score
+- Build weighted scoring system
+- Generate detailed rule-based explanation
+
+Phase 6 - AI-Enhanced Insights (FINAL AI LAYER)
+- Integrate AI only for rewriting insights (NOT generating new analysis)
+- Send to AI:
+  - Resume text
+  - Job description
+  - Rule-based explanation (strengths, gaps, suggestions)
+- AI rewrites insights with:
+  - Better wording
+  - Human-like phrasing
+  - Improved clarity
+- Add strict constraints:
+  - No hallucination
+  - No new data
+  - JSON structured output
+- Add validation + fallback to rule-based explanation
+
+Phase 7 - Results UI & UX Refinement
+- Display ATS score and breakdown
+- Show matched / missing / extra skills
+- Replace insights with AI-enhanced insights (fallback safe)
+- Add loading states (shimmer button animation)
+- Improve cards, layout, and dark theme
+- Add subtle background visual effects
+
+Phase 8 - Security & Stability Hardening
+- Add file validation (PDF type, size limit)
+- Add job description length limit
+- Prevent error message leakage
+- Ensure environment variables are not exposed
+- Clean unused endpoints and code
+
+Phase 9 - Finalization & Portfolio Readiness
+- Refactor and clean project structure
+- Remove unused AI features (optimizer, extra routes)
+- Improve README and documentation
+- Add project explanation for CV/LinkedIn
+- Prepare for optional deployment (Vercel)
+- Final UI polish
+
+Final State Summary
+- Rule-based ATS engine is the core system
+- AI is used only as a refinement layer (safe + controlled)
+- Fully working end-to-end pipeline
+- Production-like structure with validation and fallback
+- Portfolio-ready application

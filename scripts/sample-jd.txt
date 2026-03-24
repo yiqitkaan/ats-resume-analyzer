@@ -42,3 +42,20 @@ Nice to have:
 - AWS
 - Performance testing
 - PostgreSQL
+
+
+-----------------------------------------------
+
+We are looking for a Senior Rust Blockchain Engineer with strong experience in distributed systems and smart contract development.
+
+Requirements:
+- Rust programming language
+- Blockchain development (Ethereum or Solana)
+- Smart contracts (Solidity or Rust-based)
+- Cryptography fundamentals
+- Docker and Kubernetes
+- Experience with high-scale distributed systems
+
+Nice to have:
+- Experience with zero-knowledge proofs
+- Web3 infrastructure knowledge

@@ -5,6 +5,17 @@ import { refineResumeText } from "../../../lib/refineResumeText";
 
 export const runtime = "nodejs";
 
+const MAX_RESUME_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+
+function isPdfFile(file: File): boolean {
+  const normalizedName = file.name.toLowerCase();
+  return (
+    file.type === "application/pdf" ||
+    normalizedName.endsWith(".pdf") ||
+    file.type === "application/x-pdf"
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -17,6 +28,36 @@ export async function POST(request: Request) {
           error: "No resume file was uploaded.",
         },
         { status: 400 },
+      );
+    }
+
+    if (!isPdfFile(resumeFile)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Only PDF files are allowed.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (resumeFile.size <= 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Uploaded resume file is empty.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (resumeFile.size > MAX_RESUME_FILE_SIZE_BYTES) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Resume file is too large. Maximum allowed size is 10MB.",
+        },
+        { status: 413 },
       );
     }
 
@@ -33,15 +74,12 @@ export async function POST(request: Request) {
       refinedText,
     });
   } catch (error: unknown) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to parse the uploaded resume.";
+    console.error("[parse-resume] Unhandled error:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: message,
+        error: "Failed to parse the uploaded resume.",
       },
       { status: 500 },
     );

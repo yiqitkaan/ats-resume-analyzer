@@ -40,6 +40,25 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# cache / tooling
+.cache
+.turbo
+.eslintcache
+
+# local env safety (explicit)
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# uploads / temp files (extra safety)
+*.pdf
+*.tmp
+
+# macOS
+.AppleDouble
+.LSOverride
+
 
 uploads/
 tmp/
