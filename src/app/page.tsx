@@ -840,6 +840,23 @@ export default function Home() {
           </form>
         </section>
       </div>
+
+      <footer className="relative z-10 mt-10 border-t border-white/10 pt-6 text-center">
+        <p className="text-sm tracking-wide text-slate-300">
+          ATS Resume Analyzer + AI Dashboard
+        </p>
+        <p className="mt-2 text-sm text-slate-400">
+          Designed &amp; Implemented by Yiğit Kaan Bilir
+        </p>
+        <a
+          href="https://www.linkedin.com/in/yi%C4%9Fit-kaan-bilir-902698326?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-block text-sm font-medium text-slate-300 transition-colors hover:text-cyan-300"
+        >
+          LinkedIn
+        </a>
+      </footer>
     </main>
   );
 }
