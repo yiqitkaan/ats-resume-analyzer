@@ -14,11 +14,7 @@ The application lets a user upload a PDF resume, paste a job description, and re
 
 ## Demo
 
-Demo videos are available in:
-
-```bash
-docs/demo/
-```
+[Watch the demo video](docs/demo/AtsResumeAnalyzerDemo.mp4)
 
 ---
 
