@@ -14,6 +14,8 @@ The application lets a user upload a PDF resume, paste a job description, and re
 
 ## Demo
 
+[Live Demo (Vercel)](https://ats-resume-analyzer-kappa.vercel.app)
+
 [Watch the demo video](docs/demo/AtsResumeAnalyzerDemo.mp4)
 
 ---
