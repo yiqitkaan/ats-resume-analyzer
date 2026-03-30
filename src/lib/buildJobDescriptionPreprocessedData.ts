@@ -1,5 +1,6 @@
 import { tokenizeForMatching } from "./tokenizeForMatching";
 import type { PreprocessedTextData } from "../types/preprocessedText";
+import { normalizeJobDescription } from "./normalizeJobDescription";
 
 export function buildJobDescriptionPreprocessedData(
   originalText: string,
@@ -7,17 +8,7 @@ export function buildJobDescriptionPreprocessedData(
 ): PreprocessedTextData {
   const safeOriginalText = String(originalText ?? "");
   const safePreparedInput = String(preparedText ?? "");
-
-  let safePreparedText = "";
-  try {
-    safePreparedText = safePreparedInput
-      .replace(/[()\[\]{}\/.,:–—\-+]/g, " ")
-      .replace(/[-–—/.,:+()[\]{}]{2,}/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  } catch {
-    safePreparedText = safePreparedInput.replace(/\s+/g, " ").trim();
-  }
+  const safePreparedText = normalizeJobDescription(safePreparedInput);
 
   try {
     const { tokens, phrases } = tokenizeForMatching(safePreparedText);

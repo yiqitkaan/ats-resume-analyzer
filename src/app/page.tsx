@@ -295,7 +295,10 @@ export default function Home() {
     try {
       const formData = new FormData();
       formData.append("resume", selectedFile);
-      formData.append("jobDescription", jobDescription);
+      formData.append(
+        "jobDescription",
+        nextNormalizedJobDescription || jobDescription.trim(),
+      );
 
       const response = await fetch("/api/analyze-resume", {
         method: "POST",
