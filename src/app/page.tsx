@@ -619,6 +619,14 @@ export default function Home() {
                     The analyzer is currently optimized mainly for software
                     roles.
                   </p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-300">
+                    <span className="font-semibold text-slate-200">
+                      Privacy Note:
+                    </span>{" "}
+                    Your resume data is processed only for analysis during this
+                    session and is not stored, shared, or used for any other
+                    purpose.
+                  </p>
                 </div>
               </div>
             </div>
