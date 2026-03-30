@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.97",
     "next": "16.1.7",
     "openai": "^6.32.0",
     "pdf-parse": "^2.4.5",
