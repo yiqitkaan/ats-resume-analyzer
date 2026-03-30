@@ -289,6 +289,8 @@ export default function Home() {
     setParseError("");
     setAnalysisResult(null);
     setIsParsing(true);
+    const submitStartedAt = Date.now();
+    let minimumLoadingDelayMs = 0;
 
     try {
       const formData = new FormData();
@@ -308,6 +310,12 @@ export default function Home() {
 
       if (!response.ok || data?.success !== true) {
         throw new Error(errorMessage);
+      }
+
+      const isAiInsightsDisabledMode = data?.aiExplanation == null;
+      if (isAiInsightsDisabledMode) {
+        const elapsedMs = Date.now() - submitStartedAt;
+        minimumLoadingDelayMs = Math.max(0, 5000 - elapsedMs);
       }
 
       setAnalysisResult({
@@ -429,6 +437,11 @@ export default function Home() {
           : "Failed to connect to analyze route.",
       );
     } finally {
+      if (minimumLoadingDelayMs > 0) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, minimumLoadingDelayMs),
+        );
+      }
       setIsParsing(false);
     }
   };
@@ -563,6 +576,51 @@ export default function Home() {
               <p className="mt-2 text-right text-xs text-slate-400">
                 {jobDescription.length} / 1500
               </p>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-slate-700/80 bg-slate-800/45 p-3">
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 rounded-full border border-cyan-300/40 bg-cyan-400/15 p-1 text-cyan-200">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    className="h-5 w-5"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path strokeLinecap="round" d="M12 10.5v5.5" />
+                    <circle cx="12" cy="7.3" r="1.15" fill="currentColor" stroke="none" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-xs leading-relaxed text-slate-300">
+                    <span className="font-semibold text-slate-200">
+                      Demo Note:
+                    </span>{" "}
+                    This live version uses rule-based insights. The full
+                    AI-enhanced version is available on{" "}
+                    <a
+                      href="https://github.com/yiqitkaan/ats-resume-analyzer"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-medium text-cyan-300 underline underline-offset-2 transition-colors hover:text-cyan-200"
+                    >
+                      GitHub
+                    </a>
+                    .
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-300">
+                    <span className="font-semibold text-slate-200">
+                      Scope Note:
+                    </span>{" "}
+                    The analyzer is currently optimized mainly for software
+                    roles.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <button

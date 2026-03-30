@@ -263,7 +263,10 @@ Add your own OpenAI API key to `.env.local`:
 
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
+ENABLE_AI_INSIGHTS=true
 ```
+
+Set `ENABLE_AI_INSIGHTS=false` for demo/stable deployment mode (rule-based fallback only).
 
 Run the development server:
 

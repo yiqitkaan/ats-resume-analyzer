@@ -22,6 +22,7 @@ export const runtime = "nodejs";
 
 const MAX_RESUME_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const MAX_JOB_DESCRIPTION_LENGTH = 5000;
+const isAiInsightsEnabled = process.env.ENABLE_AI_INSIGHTS === "true";
 
 function isPdfFile(file: File): boolean {
   const normalizedName = file.name.toLowerCase();
@@ -224,14 +225,21 @@ export async function POST(request: Request) {
       extraSkills: refinedExtraSkills,
     });
 
-    const aiExplanation = await enhanceExplanationWithAI({
-      finalScore,
-      refinedResumeText,
-      normalizedJobDescription,
-      explanation,
-      matchedSkills: refinedMatchedSkills.map((skill) => ({ name: skill.name })),
-      missingSkills: refinedMissingSkills.map((skill) => ({ name: skill.name })),
-    });
+    // AI insights can be disabled in deployment environments for cost/stability reasons.
+    const aiExplanation = isAiInsightsEnabled
+      ? await enhanceExplanationWithAI({
+          finalScore,
+          refinedResumeText,
+          normalizedJobDescription,
+          explanation,
+          matchedSkills: refinedMatchedSkills.map((skill) => ({
+            name: skill.name,
+          })),
+          missingSkills: refinedMissingSkills.map((skill) => ({
+            name: skill.name,
+          })),
+        })
+      : null;
 
     return NextResponse.json({
       success: true,
