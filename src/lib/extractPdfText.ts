@@ -1,6 +1,8 @@
 type PdfParseModule = typeof import("pdf-parse");
+type PdfParseWorkerModule = typeof import("pdf-parse/worker");
 
 let cachedPdfParseModule: PdfParseModule | null = null;
+let isWorkerConfigured = false;
 
 function ensurePdfJsPolyfills(): void {
   const runtime = globalThis as Record<string, unknown>;
@@ -65,7 +67,17 @@ async function getPdfParseModule(): Promise<PdfParseModule> {
   }
 
   ensurePdfJsPolyfills();
-  cachedPdfParseModule = await import("pdf-parse");
+  const [pdfParseModule, workerModule] = await Promise.all([
+    import("pdf-parse"),
+    import("pdf-parse/worker").catch(() => null as PdfParseWorkerModule | null),
+  ]);
+
+  if (!isWorkerConfigured && workerModule?.getData) {
+    pdfParseModule.PDFParse.setWorker(workerModule.getData());
+    isWorkerConfigured = true;
+  }
+
+  cachedPdfParseModule = pdfParseModule;
   return cachedPdfParseModule;
 }
 
